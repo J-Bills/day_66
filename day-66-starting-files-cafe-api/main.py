@@ -70,6 +70,18 @@ def all():
         all_cafes_list.append(cafe)
     return jsonify(all_cafes_list)
 
+@app.get("/search")
+def search():
+    all_cafes = Cafe.query.where(Cafe.location == request.args.get("location")).all()
+    if len(all_cafes) == 0:
+        return jsonify({"error": "No results"})
+    else:
+        all_cafes_list = []
+        for cafe in all_cafes:
+            cafe = cafe.to_dict()
+            all_cafes_list.append(cafe)
+        return jsonify(all_cafes_list)
+
 # HTTP GET - Read Record
 
 # HTTP POST - Create Record
