@@ -61,7 +61,14 @@ def random():
     cafe = choice(all_cafes)
     return jsonify(cafe = cafe.to_dict())
 
-
+@app.get("/all")
+def all():
+    all_cafes = Cafe.query.order_by(Cafe.name).all()
+    all_cafes_list =[]
+    for cafe in all_cafes:
+        cafe = cafe.to_dict()
+        all_cafes_list.append(cafe)
+    return jsonify(all_cafes_list)
 
 # HTTP GET - Read Record
 
