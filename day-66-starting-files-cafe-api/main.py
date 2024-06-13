@@ -50,6 +50,7 @@ with app.app_context():
     db.create_all()
 
 
+# HTTP GET - Read Record
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -72,19 +73,40 @@ def all():
 
 @app.get("/search")
 def search():
-    all_cafes = Cafe.query.where(Cafe.location == request.args.get("location")).all()
+    location = request.args.get("location")
+    condition = Cafe.location.like("%" + location + "%")
+    all_cafes = Cafe.query.where(condition).all()
     if len(all_cafes) == 0:
         return jsonify({"error": "No results"})
     else:
-        all_cafes_list = []
-        for cafe in all_cafes:
-            cafe = cafe.to_dict()
-            all_cafes_list.append(cafe)
+        all_cafes_list = [cafe.to_dict() for cafe in all_cafes]
         return jsonify(all_cafes_list)
 
-# HTTP GET - Read Record
+
 
 # HTTP POST - Create Record
+def str_to_bool(val):
+    if val == 'true':
+        return 1
+    return 0
+
+@app.post('/add')
+def add_new_cafe():
+    new_cafe = Cafe(
+        name= request.form.get("name"),
+        map_url= request.form.get("map_url"),
+        img_url= request.form.get("img_url"),
+        location= request.form.get("location"),
+        seats= request.form.get("seats"),
+        has_toilet= str_to_bool(request.form.get("has_toilet")),
+        has_wifi= str_to_bool(request.form.get("has_wifi")),
+        has_sockets= str_to_bool(request.form.get("has_sockets")),
+        can_take_calls=str_to_bool(request.form.get("can_take_calls")),
+        coffee_price= request.form.get("coffee_price")
+    )
+    db.session.add(new_cafe)
+    db.session.commit()
+    return jsonify(new_cafe.to_dict())
 
 # HTTP PUT/PATCH - Update Record
 
